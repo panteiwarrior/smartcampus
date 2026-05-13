@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SmartCampus — Attendance & Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+<link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login-screen">
+  <div class="login-bg-orb orb1"></div>
+  <div class="login-bg-orb orb2"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon"><i class="ti ti-building-community"></i></div>
+      <h1>SmartCampus</h1>
+      <p>Attendance &amp; Management System</p>
+    </div>
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="selectRole('admin',this)"><i class="ti ti-shield-check"></i>Admin</button>
+      <button class="role-tab" onclick="selectRole('faculty',this)"><i class="ti ti-chalkboard"></i>Faculty</button>
+      <button class="role-tab" onclick="selectRole('student',this)"><i class="ti ti-school"></i>Student</button>
+    </div>
+    <div class="form-group">
+      <label>Username / Email</label>
+      <input type="text" id="login-user" placeholder="Enter username" value="admin" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Enter password" />
+    </div>
+    <div id="login-error" class="alert alert-danger" style="display:none"></div>
+    <button class="btn-login" onclick="doLogin()"><i class="ti ti-login"></i> Sign In</button>
+    <p class="demo-hint">Select your role then sign in</p>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app" style="display:none">
+
+  <!-- Mobile topbar -->
+  <div class="topbar" id="topbar">
+    <button class="topbar-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+      <i class="ti ti-menu-2"></i>
+    </button>
+    <div class="topbar-brand">
+      <div class="brand-icon" style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--navy)">SC</div>
+      <span class="brand-name">SmartCampus</span>
+    </div>
+    <div class="topbar-user">
+      <div class="topbar-avatar" id="topbar-avatar">AD</div>
+    </div>
+  </div>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-icon">SC</div>
+        <div><div class="brand-name">SmartCampus</div><div class="brand-sub">rja_DB · Atlas</div></div>
+      </div>
+    </div>
+
+    <!-- Desktop collapse toggle -->
+    <button class="sidebar-toggle-btn" id="desktop-toggle" onclick="toggleSidebarCollapse()" title="Collapse sidebar">
+      <i class="ti ti-layout-sidebar-left-collapse"></i>
+      <span>Collapse</span>
+    </button>
+
+    <div class="user-info">
+      <div class="user-avatar" id="sb-avatar">AD</div>
+      <div class="user-details">
+        <div class="user-name" id="sb-name">Administrator</div>
+        <div class="user-role-badge role-admin" id="sb-role">Admin</div>
+      </div>
+    </div>
+    <nav class="nav-section" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="live-indicator"><span class="live-dot"></span><span>Connected · rja_DB</span></div>
+      <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i><span> Sign Out</span></button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content" id="main-content"></main>
+</div>
+
+<!-- ══════════ MODAL: ADD / EDIT USER ══════════ -->
+<div class="modal-overlay" id="modal-user" onclick="modalBgClick(event,'modal-user')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="modal-user-title">Add New User</h3>
+      <button class="modal-close" onclick="closeModal('modal-user')"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="modal-error" class="alert alert-danger" style="display:none;margin-bottom:1rem"></div>
+    <div class="form-row mb-1">
+      <div class="field"><label>First Name *</label><input type="text" id="f-first-name" placeholder="Juan" /></div>
+      <div class="field"><label>Last Name *</label><input type="text" id="f-last-name" placeholder="dela Cruz" /></div>
+    </div>
+    <div class="form-row mb-1">
+      <div class="field"><label>ID Number *</label><input type="text" id="f-id-number" placeholder="2024-0001" /></div>
+      <div class="field"><label>Email *</label><input type="email" id="f-email" placeholder="juan@uni.edu" /></div>
+    </div>
+    <div class="form-row mb-1">
+      <div class="field">
+        <label>Role *</label>
+        <select id="f-role" onchange="toggleSectionField()">
+          <option value="student">Student</option>
+          <option value="faculty">Faculty</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="field"><label>Department *</label>
+        <select id="f-department">
+          <option value="BSCS">BSCS — Computer Science</option>
+          <option value="BSIT">BSIT — Information Technology</option>
+          <option value="BSMATH">BSMATH — Mathematics</option>
+          <option value="BSECE">BSECE — Electronics Engineering</option>
+          <option value="BSE">BSE — Education</option>
+          <option value="Faculty">Faculty / Administration</option>
+          <option value="Administration">Administration</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row mb-1">
+      <div class="field" id="section-field">
+        <label>Section <span style="color:var(--text3)">(students only)</span></label>
+        <input type="text" id="f-section" placeholder="e.g. BSCS 2-A" />
+      </div>
+      <div class="field">
+        <label>Password * <span id="pw-hint" style="color:var(--text3);font-weight:400;text-transform:none">(leave blank to keep current)</span></label>
+        <input type="password" id="f-password" placeholder="Min. 6 characters" />
+      </div>
+    </div>
+    <div class="form-row mb-1">
+      <div class="field">
+        <label>NFC UID <span style="color:var(--text3)">(card number)</span></label>
+        <input type="text" id="f-nfc-uid" placeholder="e.g. A3F2C1D4" />
+      </div>
+      <div class="field">
+        <label>Fingerprint ID <span style="color:var(--text3)">(scanner template)</span></label>
+        <input type="number" id="f-fingerprint-id" placeholder="e.g. 42" min="1" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-user')">Cancel</button>
+      <button class="btn btn-primary" id="modal-save-btn" onclick="saveUser()"><i class="ti ti-device-floppy"></i> Save User</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: CONFIRM DELETE ══════════ -->
+<div class="modal-overlay" id="modal-delete" onclick="modalBgClick(event,'modal-delete')">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Delete User</h3>
+      <button class="modal-close" onclick="closeModal('modal-delete')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="alert alert-danger"><i class="ti ti-alert-triangle"></i> This action cannot be undone.</div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:1.5rem">
+      Are you sure you want to delete <strong id="delete-user-name" style="color:var(--text)"></strong>?
+      All their records will be permanently removed.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-delete')">Cancel</button>
+      <button class="btn btn-danger" id="confirm-delete-btn" onclick="confirmDelete()"><i class="ti ti-trash"></i> Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: VIEW USER ══════════ -->
+<div class="modal-overlay" id="modal-view" onclick="modalBgClick(event,'modal-view')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>User Profile</h3>
+      <button class="modal-close" onclick="closeModal('modal-view')"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="modal-view-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-view')">Close</button>
+      <button class="btn btn-primary" id="view-edit-btn"><i class="ti ti-edit"></i> Edit User</button>
+    </div>
+  </div>
+</div>
+
+<!------- LOGIN SCRIPT ------->
+<script>
+let currentRole = 'admin';
+
+function selectRole(role, el) {
+  currentRole = role;
+  document.querySelectorAll('.role-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const hints = { admin: 'admin', faculty: 'faculty', student: 'student@uni.edu' };
+  document.getElementById('login-user').value = hints[role] || '';
+  document.getElementById('login-pass').value = '';
+}
+
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const errorBox = document.getElementById('login-error');
+  errorBox.style.display = 'none';
+
+  if (!username || !password) {
+    errorBox.style.display = 'block';
+    errorBox.innerText = 'Please enter your username and password.';
+    return;
+  }
+
+  const btn = document.querySelector('.btn-login');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin .8s linear infinite"></i> Signing in…';
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, role: currentRole })
+    });
+    const data = await response.json();
+
+    if (!data.success) {
+      errorBox.style.display = 'block';
+      errorBox.innerText = 'Username or password is incorrect.';
+      return;
+    }
+
+    window._lastLoginUser = { ...data.user };
+    errorBox.style.display = 'none';
+    document.getElementById('login-screen').style.display = 'none';
+
+    const app = document.getElementById('app');
+    app.style.display = 'flex';
+
+    document.getElementById('sb-name').innerText    = data.user.name;
+    document.getElementById('topbar-avatar').innerText = (data.user.name.split(' ').map(n=>n[0]).join('').slice(0,2)).toUpperCase();
+
+    const badge = document.getElementById('sb-role');
+    badge.innerText   = data.user.role.charAt(0).toUpperCase() + data.user.role.slice(1);
+    badge.className   = 'user-role-badge role-' + data.user.role;
+
+    const avatarEl = document.getElementById('sb-avatar');
+    if (avatarEl) {
+      const parts = data.user.name.split(' ');
+      avatarEl.innerText = (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+    }
+
+  } catch (err) {
+    console.error(err);
+    errorBox.style.display = 'block';
+    errorBox.innerText = 'Server error. Please try again.';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-login"></i> Sign In';
+  }
+}
+
+// ── Sidebar toggle (desktop: collapse/expand) ──
+let sidebarCollapsed = false;
+function toggleSidebarCollapse() {
+  const sb = document.getElementById('sidebar');
+  sidebarCollapsed = !sidebarCollapsed;
+  sb.classList.toggle('collapsed', sidebarCollapsed);
+  localStorage.setItem('sc_sidebar_collapsed', sidebarCollapsed ? '1' : '0');
+}
+
+// ── Sidebar toggle (mobile: slide in/out) ──
+function toggleSidebar() {
+  const sb  = document.getElementById('sidebar');
+  const ov  = document.getElementById('sidebar-overlay');
+  const open = sb.classList.contains('mobile-open');
+  sb.classList.toggle('mobile-open', !open);
+  ov.classList.toggle('active', !open);
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-overlay').classList.remove('active');
+}
+
+// ── On nav item click, auto-close on mobile ──
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.nav-item') && window.innerWidth <= 768) {
+    closeSidebar();
+  }
+});
+
+// ── Restore collapse state on load ──
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('sc_sidebar_collapsed') === '1') {
+    sidebarCollapsed = true;
+    document.getElementById('sidebar').classList.add('collapsed');
+  }
+});
+</script>
+
+<!------- PAGE SCRIPTS ------->
+<script src="js/app.js"></script>
+<script src="js/pages/users.js"></script>
+<script src="js/pages/dashboard.js"></script>
+<script src="js/pages/faculty-dashboard.js"></script>
+<script src="js/pages/faculty-attendance.js"></script>
+<script src="js/pages/faculty-announcements.js"></script>
+<script src="js/pages/faculty-requisitions.js"></script>
+<script src="js/pages/admin-requisitions.js"></script>
+<script src="js/pages/rooms.js"></script>
+<script src="js/pages/csv-import.js"></script>
+
+</body>
+</html>
